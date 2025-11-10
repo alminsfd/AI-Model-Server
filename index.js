@@ -1,9 +1,10 @@
+const cors = require('cors')
 const express = require('express')
 const app = express()
+app.use(express.json())
 const port = process.env.PORT || 5000
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const cors = require('cors')
 
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.eepqhhq.mongodb.net/?appName=Cluster0`;
@@ -19,35 +20,33 @@ const client = new MongoClient(uri, {
 
 
 
-const database = client.db("AI-Inventory");
-const Modelscollection = database.collection("Models");
-
-
-
 async function run() {
   try {
-    
-
-app.post('/allmodels',async(req,res)=>{
-
-})
-
-
-
-
-
-
-
-
-
-
     await client.connect();
-    
+
+    const database = client.db("AI-Inventory");
+    const Modelscollection = database.collection("Models");
+
+    app.post('/allmodels', async (req, res) => {
+      const Modelsdata = req.body
+      const result = await Modelscollection.insertOne(Modelsdata);
+      res.send(result)
+
+    })
+
+    app.get('/allmodels', async (req, res) => {
+      const cursor = Modelscollection.find({});
+      const allValues = await cursor.toArray();
+      res.send(allValues)
+
+    })
+
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    
-    
+
+
   }
 }
 run().catch(console.dir);
