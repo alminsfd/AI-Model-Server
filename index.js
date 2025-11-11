@@ -26,7 +26,7 @@ async function run() {
 
     const database = client.db("AI-Inventory");
     const Modelscollection = database.collection("Models");
-    const puchingModelCollection=database.collection('puschasingModel')
+    const puchingModelCollection = database.collection('puschasingModel')
 
     app.post('/allmodels', async (req, res) => {
       const Modelsdata = req.body
@@ -42,13 +42,36 @@ async function run() {
 
     })
 
-    app.get('/allmodels/:id',async(req,res)=>{
+    app.get('/allmodels/:id', async (req, res) => {
       const id = req.params.id
-      const query= new ObjectId(id)
-      const result=await Modelscollection.findOne(query)
+      const query = { _id: new ObjectId(id) }
+      const result = await Modelscollection.findOne(query)
       res.send(result)
     })
-    
+
+    app.post('/purchase', async (req, res) => {
+      const purcaseData = req.body
+      const result = await puchingModelCollection.insertOne(purcaseData)
+      res.send(result)
+    })
+
+
+    app.patch('/allmodels/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const Updatedata = req.body
+      const Update={
+        $set:Updatedata
+      }
+      const result = await Modelscollection.updateOne(query, Update);
+      res.send(result)
+
+
+    })
+
+    {
+
+    }
 
 
     await client.db("admin").command({ ping: 1 });
@@ -71,5 +94,7 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+
 
 
