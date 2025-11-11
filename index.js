@@ -60,8 +60,8 @@ async function run() {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const Updatedata = req.body
-      const Update={
-        $set:Updatedata
+      const Update = {
+        $set: Updatedata
       }
       const result = await Modelscollection.updateOne(query, Update);
       res.send(result)
@@ -69,9 +69,14 @@ async function run() {
 
     })
 
-    {
+    app.delete('/allmodels/:id',async (req,res)=>{
+      const id =req.params.id
+      const query={_id:new ObjectId(id)}
+      const deleteResult = await Modelscollection.deleteOne(query);
+      res.send(deleteResult)
+    })
 
-    }
+    
 
 
     await client.db("admin").command({ ping: 1 });
