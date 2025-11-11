@@ -4,7 +4,7 @@ const app = express()
 app.use(express.json())
 const port = process.env.PORT || 5000
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.eepqhhq.mongodb.net/?appName=Cluster0`;
@@ -26,6 +26,7 @@ async function run() {
 
     const database = client.db("AI-Inventory");
     const Modelscollection = database.collection("Models");
+    const puchingModelCollection=database.collection('puschasingModel')
 
     app.post('/allmodels', async (req, res) => {
       const Modelsdata = req.body
@@ -40,6 +41,14 @@ async function run() {
       res.send(allValues)
 
     })
+
+    app.get('/allmodels/:id',async(req,res)=>{
+      const id = req.params.id
+      const query= new ObjectId(id)
+      const result=await Modelscollection.findOne(query)
+      res.send(result)
+    })
+    
 
 
     await client.db("admin").command({ ping: 1 });
