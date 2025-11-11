@@ -46,6 +46,19 @@ async function run() {
       res.send(allValues)
 
     })
+    app.get('/purchase', async (req, res) => {
+      const email=req.query.email
+      const query={}
+      if(email){
+        query.purchaseBy=email
+      }
+      const cursor = puchingModelCollection.find(query);
+      const allValues = await cursor.toArray();
+      res.send(allValues)
+
+    })
+
+    
  
 
     app.get('/allmodels/:id', async (req, res) => {
