@@ -36,11 +36,17 @@ async function run() {
     })
 
     app.get('/allmodels', async (req, res) => {
-      const cursor = Modelscollection.find({});
+      const email=req.query.email
+      const query={}
+      if(email){
+        query.createdBy=email
+      }
+      const cursor = Modelscollection.find(query);
       const allValues = await cursor.toArray();
       res.send(allValues)
 
     })
+ 
 
     app.get('/allmodels/:id', async (req, res) => {
       const id = req.params.id
@@ -69,14 +75,15 @@ async function run() {
 
     })
 
-    app.delete('/allmodels/:id',async (req,res)=>{
-      const id =req.params.id
-      const query={_id:new ObjectId(id)}
+    app.delete('/allmodels/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
       const deleteResult = await Modelscollection.deleteOne(query);
       res.send(deleteResult)
     })
 
-    
+
+
 
 
     await client.db("admin").command({ ping: 1 });
