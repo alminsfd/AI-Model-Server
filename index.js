@@ -7,7 +7,8 @@ require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const admin = require("firebase-admin");
 
-const serviceAccount = require("./ai-model-inventory-manager-85-firebase-adminsdk.json");
+const decoded = Buffer.from(process.env.FIREBASE_SERVICE_KEY, "base64").toString("utf8");
+const serviceAccount = JSON.parse(decoded);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -37,22 +38,23 @@ async function run() {
     const Modelscollection = database.collection("Models");
     const puchingModelCollection = database.collection('puschasingModel')
 
-    const VarifiedWithfirebase = (req, res, next) => {
+    const VarifiedWithfirebase = async (req, res, next) => {
       const authorization = req.headers.authorization
       if (!authorization) {
         return res.status(401).send({ message: 'Unauthorised access' })
       }
-      const Token= req.headers.authorization.split(' ')[1]
-      if(!Token){
+      const Token = req.headers.authorization.split(' ')[1]
+      if (!Token) {
         return res.status(401).send({ message: 'Unauthorised access' })
       }
-      try{
-         const decode= admin.auth().verifyIdToken(Token)
-         req.email_token=decode.email
-      }catch{
+      try {
+        const decode = await admin.auth().verifyIdToken(Token)
+        req.email_token = decode.email
+        next()
+      } catch {
         return res.status(401).send({ message: 'Unauthorised access' })
       }
-      
+
     }
 
     app.post('/allmodels', async (req, res) => {
@@ -73,7 +75,7 @@ async function run() {
       res.send(allValues)
 
     })
-    app.get('/allmodel', async (req, res) => {
+    app.get('/leatest/allmodel', async (req, res) => {
       const cursor = Modelscollection.find({}).sort({ createdAt: -1 }).limit(6)
       const allValues = await cursor.toArray();
       res.send(allValues)
