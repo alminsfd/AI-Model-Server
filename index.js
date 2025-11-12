@@ -36,21 +36,27 @@ async function run() {
     })
 
     app.get('/allmodels', async (req, res) => {
-      const email=req.query.email
-      const query={}
-      if(email){
-        query.createdBy=email
+      const email = req.query.email
+      const query = {}
+      if (email) {
+        query.createdBy = email
       }
       const cursor = Modelscollection.find(query);
       const allValues = await cursor.toArray();
       res.send(allValues)
 
     })
+    app.get('/allmodel', async (req, res) => {
+      const cursor = Modelscollection.find({}).sort({createdAt: -1}).limit(6)
+      const allValues = await cursor.toArray();
+      res.send(allValues)
+
+    })
     app.get('/purchase', async (req, res) => {
-      const email=req.query.email
-      const query={}
-      if(email){
-        query.purchaseBy=email
+      const email = req.query.email
+      const query = {}
+      if (email) {
+        query.purchaseBy = email
       }
       const cursor = puchingModelCollection.find(query);
       const allValues = await cursor.toArray();
@@ -58,8 +64,6 @@ async function run() {
 
     })
 
-    
- 
 
     app.get('/allmodels/:id', async (req, res) => {
       const id = req.params.id
