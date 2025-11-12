@@ -5,11 +5,19 @@ app.use(express.json())
 const port = process.env.PORT || 5000
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const admin = require("firebase-admin");
+
+const serviceAccount = require("./ai-model-inventory-manager-85-firebase-adminsdk.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
 
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.eepqhhq.mongodb.net/?appName=Cluster0`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -19,14 +27,33 @@ const client = new MongoClient(uri, {
 });
 
 
-
 async function run() {
   try {
     await client.connect();
 
+
+
     const database = client.db("AI-Inventory");
     const Modelscollection = database.collection("Models");
     const puchingModelCollection = database.collection('puschasingModel')
+
+    const VarifiedWithfirebase = (req, res, next) => {
+      const authorization = req.headers.authorization
+      if (!authorization) {
+        return res.status(401).send({ message: 'Unauthorised access' })
+      }
+      const Token= req.headers.authorization.split(' ')[1]
+      if(!Token){
+        return res.status(401).send({ message: 'Unauthorised access' })
+      }
+      try{
+         const decode= admin.auth().verifyIdToken(Token)
+         req.email_token=decode.email
+      }catch{
+        return res.status(401).send({ message: 'Unauthorised access' })
+      }
+      
+    }
 
     app.post('/allmodels', async (req, res) => {
       const Modelsdata = req.body
@@ -47,7 +74,7 @@ async function run() {
 
     })
     app.get('/allmodel', async (req, res) => {
-      const cursor = Modelscollection.find({}).sort({createdAt: -1}).limit(6)
+      const cursor = Modelscollection.find({}).sort({ createdAt: -1 }).limit(6)
       const allValues = await cursor.toArray();
       res.send(allValues)
 
