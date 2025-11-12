@@ -129,6 +129,17 @@ async function run() {
     })
 
 
+    app.get('/search', async (req, res) => {
+      const search = req.query.search
+      const query = { name : {$regex: search, $options:'i'} }
+      const cursor = Modelscollection.find(query);
+      const allValues = await cursor.toArray();
+      res.send(allValues)
+
+
+    })
+
+
 
 
 
