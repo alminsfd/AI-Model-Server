@@ -117,7 +117,15 @@ async function run() {
       }
       const result = await Modelscollection.updateOne(query, Update);
       res.send(result)
+    })
 
+    app.patch('/updatepurchase', async (req, res) => {
+      const body=req.body
+      const query={_id:new ObjectId(body.model_id)}
+      const Update={
+        $inc:{purchased:1}}
+      const result = await Modelscollection.updateOne(query,Update)
+      res.send(result)
 
     })
 
@@ -131,7 +139,7 @@ async function run() {
 
     app.get('/search', async (req, res) => {
       const search = req.query.search
-      const query = { name : {$regex: search, $options:'i'} }
+      const query = { name: { $regex: search, $options: 'i' } }
       const cursor = Modelscollection.find(query);
       const allValues = await cursor.toArray();
       res.send(allValues)
